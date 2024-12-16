@@ -125,7 +125,7 @@ if (! function_exists('dec_logo')) {
             </div>
             <div class="site-description"><?php bloginfo('description'); ?></div>
         </div>
-<?php }
+    <?php }
 }
 
 /**
@@ -141,5 +141,32 @@ if (! function_exists('dec_menu')) {
             'container_class' => $slug,
         );
         wp_nav_menu($menu);
+    }
+}
+
+/**
+  @ Tạo hàm phân trang cho index, archive.
+  @ Hàm này sẽ hiển thị liên kết phân trang theo dạng chữ: Newer Posts & Older Posts
+  @ dec_pagination()
+ **/
+if (! function_exists('dec_pagination')) {
+    function dec_pagination()
+    {
+        /*
+       * Không hiển thị phân trang nếu trang đó có ít hơn 2 trang
+       */
+        if ($GLOBALS['wp_query']->max_num_pages < 2) {
+            return '';
+        }
+    ?>
+        <nav class="pagination" role="navigation">
+            <?php if (get_next_post_link()) : ?>
+                <div class="prev"><?php next_posts_link(__('Older Posts', 'dec')); ?></div>
+            <?php endif; ?>
+            <?php if (get_previous_post_link()) : ?>
+                <div class="next"><?php previous_posts_link(__('Newer Posts', 'dec')); ?></div>
+            <?php endif; ?>
+        </nav>
+<?php
     }
 }
