@@ -167,6 +167,145 @@ if (! function_exists('dec_pagination')) {
                 <div class="next"><?php previous_posts_link(__('Newer Posts', 'dec')); ?></div>
             <?php endif; ?>
         </nav>
+        <?php
+    }
+}
+
+/**
+  @ Hàm hiển thị ảnh thumbnail của post.
+  @ Ảnh thumbnail sẽ không được hiển thị trong trang single
+  @ Nhưng sẽ hiển thị trong single nếu post đó có format là Image
+  @ dec_thumbnail( $size )
+ **/
+if (! function_exists('dec_thumbnail')) {
+    function dec_thumbnail($size)
+    {
+        // Chỉ hiển thumbnail với post không có mật khẩu
+        if (! is_single() &&  has_post_thumbnail()  && ! post_password_required() || has_post_format('image')) : ?>
+            <figure class="post-thumbnail"><?php the_post_thumbnail($size); ?></figure>
+        <?php
+        endif;
+    }
+}
+
+/**
+  @ Hàm hiển thị tiêu đề của post trong .entry-header
+  @ Tiêu đề của post sẽ là nằm trong thẻ <h1> ở trang single
+  @ Còn ở trang chủ và trang lưu trữ, nó sẽ là thẻ <h2>
+  @ dec_entry_header()
+ **/
+if (! function_exists('dec_entry_header')) {
+    function dec_entry_header()
+    {
+        if (is_single()) : ?>
+            <h1 class="entry-title">
+                <a href="<?php the_permalink(); ?>" rel="bookmark" title="<?php the_title_attribute(); ?>">
+                    <?php the_title(); ?>
+                </a>
+            </h1>
+        <?php else : ?>
+            <h2 class="entry-title">
+                <a href="<?php the_permalink(); ?>" rel="bookmark" title="<?php the_title_attribute(); ?>">
+                    <?php the_title(); ?>
+                </a>
+            </h2>
 <?php
+        endif;
+    }
+}
+
+/**
+  @ Hàm hiển thị thông tin của post (Post Meta)
+  @ dec_entry_meta()
+ **/
+if (! function_exists('dec_entry_meta')) {
+    function dec_entry_meta()
+    {
+        if (! is_page()) :
+            echo '<div class="entry-meta">';
+            // Hiển thị tên tác giả, tên category và ngày tháng đăng bài
+            printf(
+                __('<span class="author">Posted by %1$s</span>', 'dec'),
+                get_the_author()
+            );
+
+
+            printf(
+                __('<span class="date-published"> at %1$s</span>', 'dec'),
+                get_the_date()
+            );
+
+
+            printf(
+                __('<span class="category"> in %1$s</span>', 'dec'),
+                get_the_category_list(', ')
+            );
+
+
+            // Hiển thị số đếm lượt bình luận
+            if (comments_open()) :
+                echo ' <span class="meta-reply">';
+                comments_popup_link(
+                    __('Leave a comment', 'dec'),
+                    __('One comment', 'dec'),
+                    __('% comments', 'dec'),
+                    __('Read all comments', 'dec')
+                );
+                echo '</span>';
+            endif;
+            echo '</div>';
+        endif;
+    }
+}
+
+/*
+   * Thêm chữ Read More vào excerpt
+   */
+function dec_readmore()
+{
+    return '…<a class="read-more" href="' . get_permalink(get_the_ID()) . '">' . __('Read More', 'dec') . '</a>';
+}
+add_filter('excerpt_more', 'dec_readmore');
+/**
+  @ Hàm hiển thị nội dung của post type
+  @ Hàm này sẽ hiển thị đoạn rút gọn của post ngoài trang chủ (the_excerpt)
+  @ Nhưng nó sẽ hiển thị toàn bộ nội dung của post ở trang single (the_content)
+  @ dec_entry_content()
+ **/
+if (! function_exists('dec_entry_content')) {
+    function dec_entry_content()
+    {
+
+        if (! is_single()) :
+            the_excerpt();
+        else :
+            the_content();
+
+            /*
+         * Code hiển thị phân trang trong post type
+         */
+            $link_pages = array(
+                'before' => __('<p>Page:', 'dec'),
+                'after' => '</p>',
+                'nextpagelink'     => __('Next page', 'dec'),
+                'previouspagelink' => __('Previous page', 'dec')
+            );
+            wp_link_pages($link_pages);
+        endif;
+    }
+}
+
+/**
+  @ Hàm hiển thị tag của post
+  @ dec_entry_tag()
+ **/
+if (! function_exists('dec_entry_tag')) {
+    function dec_entry_tag()
+    {
+        if (has_tag()) :
+            echo '<div class="entry-tag">';
+            printf(__('Tagged in %1$s', 'dec'), get_the_tag_list('', ', '));
+            echo '</div>';
+        endif;
     }
 }
